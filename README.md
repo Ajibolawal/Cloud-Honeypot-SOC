@@ -13,23 +13,9 @@ A **honeypot** is a **decoy system** designed to mimic a real vulnerable target.
 ## Project Architecture 🏗️
 The following network diagram outlines the setup:
 
-```plaintext
-+----------------------------------+
-|         Azure Subscription       |
-| +------------------------------+ |
-| |       Resource Group         | |
-| |  +------------------------+  | |
-| |  |         VNet          |  | |
-| |  |  +------------------+ |  | |
-| |  |  | Virtual Machine  | |  | |
-| |  |  +------------------+ |  | |
-| |  |      (Honeypot)       |  | |
-| |  +------------------------+  | |
-| | NSG: Open to Public Internet | |
-| | Logs → Log Analytics → SIEM  | |
-| +------------------------------+ |
-+----------------------------------+
-```
+![Honey Pot drawio](https://github.com/user-attachments/assets/4c022e26-e330-47b8-ac1d-4231e95057d8)
+
+***Ref 1: Network Diagram***
 
 ---
 
@@ -39,12 +25,18 @@ The following network diagram outlines the setup:
 - Head over to the **Azure Portal** and click on **Resource Groups**.
 - Pick a **Region** that's closest to you.
 - Give it a clear name, like `RG-SOC-LAB`, so you know what it's for.
+![image](https://github.com/user-attachments/assets/491e0183-dd0a-4514-9779-dc831e3d6843)
+***Ref 2: Creating a Resource Group***
 
 ## 2. **Creating a Virtual Network** 🌐
 - Navigate to the **Azure Portal** and find **Virtual Networks**.
 - Assign it to the **Resource Group** you just created.
 - The **IP address range** will be set automatically.
 - A **subnet** will also be created for you.
+
+![image](https://github.com/user-attachments/assets/ec420a4f-dc98-4492-8a16-b44b3213af38) 
+
+***Ref 3: Creating a Virtual Network***
 
 ## 3. **Deploying the Virtual Machine** 🖥️
 1. In the **Azure Portal**, go to **Virtual Machines**.
@@ -60,6 +52,11 @@ The following network diagram outlines the setup:
 9. In the **Monitoring tab**, select **Disable** for **Boot Diagnostics**.
 10. Finally, click **Deploy** to create the VM.
 
+|![image](https://github.com/user-attachments/assets/4a00963b-5d62-4889-9b0c-860def65a55b) | ![image](https://github.com/user-attachments/assets/2af27cb4-8f86-4cec-9e5a-82b7d27d944a) |
+|--------------------------------|--------------------------------|
+
+***Ref 4: Creating a Virtual Machine***
+
 ## 4. **Log in to the VM and Disable the Windows Firewall** 🛑
 1. Once the VM is set up, connect to it using **RDP (Remote Desktop Protocol)**.
 2. After you're logged in, follow these steps to disable the firewall:
@@ -67,6 +64,11 @@ The following network diagram outlines the setup:
    - In the firewall window, click **Properties** on the right.
    - For each profile tab (Domain Profile, Private Profile, and Public Profile):
      - Set the **Firewall State** to **Off**.
+
+![image](https://github.com/user-attachments/assets/82e2d248-4b39-49e5-b03b-5aa60498b065)
+
+***Ref 5: Disabling Windows Firewall***
+
 3. To check if the firewall is off, **ping the VM** from your local machine:
    - Open **PowerShell** or **Command Prompt** (cmd).
    - Type this command:
@@ -75,16 +77,31 @@ The following network diagram outlines the setup:
    ```
    - Replace `<VM_Public_IP>` with the actual public IP address of your VM. If the VM responds, it confirms the firewall is disabled and that the machine is accessible on the network (which also makes it more vulnerable to attack).
 
+![image](https://github.com/user-attachments/assets/ed49fc5f-7276-4b43-a73c-c0785584dd86)
+
+***Ref 6: Pinging the Virtual Machine***
+
+
 ## 5. **Sign Out and Test Login Attempts** 🚪
 1. Sign out of the VM.
 2. Try logging in with a different username and use **incorrect credentials** for 4 attempts. This simulates failed login attempts.
 3. After 4 failed attempts, log in again using the correct username and password.
+
+|![image](https://github.com/user-attachments/assets/79ca9203-89d1-439d-bfe4-cccbf398c2dd) | ![image](https://github.com/user-attachments/assets/958e108f-8839-47a8-9b66-a9f1a6175fcf) |
+|--------------------------------|--------------------------------|
+
+***Ref 7: Signing in with incorrect credentials***
 
 ## 6. **Viewing Security Logs in Event Viewer** 📜
 1. Open **Event Viewer** by pressing **Start** and typing `event viewer`.
 2. This tool logs all system activity, including **security events**.
 3. Go to **Windows Logs → Security** to view all **security-related logs** on the system.
 4. These logs will provide information about **successful and failed login attempts** as well as other security-related events.
+
+![image](https://github.com/user-attachments/assets/9661dba3-8bfc-42a5-be9b-326d248fa9bc)
+
+***Ref 8: Security related logs***
+
 
 ## 7. **Forwarding Logs to Azure for Analysis** 📡
 To forward your security logs to Azure, follow these steps:
@@ -94,6 +111,10 @@ To forward your security logs to Azure, follow these steps:
 2. Create a new **Log Analytics Workspace**:
    - Assign it to the same **Resource Group** as your VM.
    - Name it something clear, like `LAW-SOC-LAB`.
+
+![image](https://github.com/user-attachments/assets/e8ae614c-03b0-42b8-ab0e-28425ab8c99d)
+
+***Ref 9: Created a Log Analytics Workspace***
 
 ### 7.2. **Create a Sentinel Instance in Azure**
 1. Set up a **Microsoft Sentinel** instance in Azure.
@@ -112,10 +133,19 @@ To forward your security logs to Azure, follow these steps:
 5. Under the **Collect** tab, select **All Security Events**.
 6. Click **Save** to finish the setup.
 
+![image](https://github.com/user-attachments/assets/ec1efb5c-6e0d-4a80-8056-4afb003fd061)
+
+***Ref 10: Created a Data Collection Rule***
+
 ## 8. **Verifying the Log Forwarding and Querying Logs** 📊
 1. Return to the **Log Analytics Workspace** and select **Logs**.
 2. In the query box, type `SecurityEvents` and run the query.
 3. The query will return the **Windows security events**, showing all activities logged from the VM.
+
+![image](https://github.com/user-attachments/assets/011310f2-3993-4ccc-9534-e6d5a7046637)
+
+***Ref 11: 'SecurityEvents' query results***
+
 
 You can now monitor and analyse these logs in **Microsoft Sentinel**.
 
@@ -178,6 +208,11 @@ SecurityEvent
 4. In the **Source** tab, upload the file that contains the allowed IP locations from [this link](https://drive.google.com/file/d/13EfjM_4BohrmaxqXZLB5VUBIz2sv9Siz/view). (Make sure to save it locally first).
 5. For the **Search Key**, select **network**.
 6. Wait for it to upload.
+
+![image](https://github.com/user-attachments/assets/7c5e7329-1efa-4e9b-83ea-2e64950a11c7)
+
+***Ref 12: Watchlist wizard***
+
 7. Once uploaded, go back to the query and type the following:
 
     ```kql
@@ -187,6 +222,10 @@ SecurityEvent
 
     **Explanation**:
     - This is used to look up IP address locations to see where the failed login attempts are coming from.
+
+![image](https://github.com/user-attachments/assets/c51a9134-1845-4d3b-845f-05cbab8ceb05)
+
+***Ref 13: List of the ip locations***
 
 ---
 
@@ -224,6 +263,13 @@ SecurityEvent
 
     **Explanation**:
     - `| project ...`: Projects (or selects) specific columns for the output: **TimeGenerated**, **Computer**, **AttackerIp**, **cityname**, **countryname**, **latitude**, and **longitude**.
+    - `AttackerIp = IpAddress`: We changed the **IpAddress** column to **AttackerIp** for clarity, as it better reflects the intent of the data, which is to indicate the source IP address of the potential attacker.
+
+|![image](https://github.com/user-attachments/assets/93b1cf5b-62e4-4ffc-aee1-5dc212761685) | ![image](https://github.com/user-attachments/assets/c986d68a-ba60-4500-bbfc-0a5c560674e9) |
+|--------------------------------|--------------------------------|
+
+***Ref 14: Column name change from IpAddress to AttackerIp***
+
 
 ---
 
@@ -276,6 +322,11 @@ SecurityEvent
 
 4. Click **Done Editing** to view the map.
 5. Save the workbook as **Windows VM Attack Map** and select the **UK South** resource group and location.
+
+|![image](https://github.com/user-attachments/assets/08fd098d-b1b5-4cf2-99a4-06f3fc80941b) | ![image](https://github.com/user-attachments/assets/0669d969-2abb-4445-b1e6-2c3d1e7ece60) |
+|--------------------------------|--------------------------------|
+
+***Ref 15: Attack Map before and after 24hours of creation***
 
 ---
 
