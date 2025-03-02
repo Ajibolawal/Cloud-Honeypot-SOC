@@ -341,10 +341,15 @@ SecurityEvent
 
 ## Skills Gained 🚀
 ✅ Deploying and managing **Azure resources**
+
 ✅ Setting up **honeypots** and monitoring real-world attacks
+
 ✅ Configuring **log forwarding** and analysis
+
 ✅ Using **Microsoft Sentinel for SIEM**
+
 ✅ Writing **KQL queries** to detect attack patterns
+
 ✅ Creating **visual dashboards** for cybersecurity analytics
 
 ---
